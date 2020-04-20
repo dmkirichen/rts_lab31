@@ -7,11 +7,13 @@ from kivy.uix.dropdown import DropDown
 import datetime
 import random
 import math
+import time
 import pdb
 
 class Perceptron:
     def __init__(self, threshold: int, dot_list: list, learning_rate: float, 
                  deadline: float, deadline_type: str):
+        self.exec_time = 0
         self.w1 = 0
         self.w2 = 0
         self.P = threshold
@@ -29,11 +31,13 @@ class Perceptron:
                             'not "{}".'.format(deadline_type))
 
     def __repr__(self):
-        return """Perceptron(w1={}, w2={}, P={}, dots={}, delta={},
-               deadline=({}, {}))""".format(self.w1, self.w2, self.P, self.dots,
-                        self.delta, self.deadline_type, self.deadline)
+        return """Perceptron(w1={}, w2={}, P={}, dots={}, 
+                  delta={}, deadline=({}, {}))
+                  Time of execution: {} s.""".format(self.w1, self.w2, self.P, self.dots,
+                        self.delta, self.deadline_type, self.deadline, self.exec_time)
 
     def train(self):
+        start_exec_time = time.time()
         if self.deadline_type == 'time':
             now = datetime.datetime.now()
             end = now + self.deadline
@@ -49,6 +53,8 @@ class Perceptron:
                 break
             prev_rez = curr_rez
             now = datetime.datetime.now() if self.deadline_type == 'time' else now + 1
+        end_exec_time = time.time()
+        self.exec_time = end_exec_time - start_exec_time
 
     def step(self, dot_ind):
         dot = self.dots[dot_ind]
@@ -76,7 +82,7 @@ class Perceptron:
 
 class SimpleApp(kivy.app.App):
     def build(self): 
-        self.label = Label(text="Choose parameters for the perceptron.")
+        self.label = Label(text="Choose parameters for the perceptron.", text_size=[None, None])
         
         self.label_P = Label(text="Write your threshold:")
         self.input_P = TextInput() 
@@ -127,7 +133,7 @@ class SimpleApp(kivy.app.App):
         return self.boxLayout
 
     def displayMessage(self, btn):
-        try:
+#        try:
             threshold = int(self.input_P.text)
             dot1 = [float(self.input_1dot.text.split(" ")[0]), float(self.input_2dot.text.split(" ")[1])]
             dot2 = [float(self.input_2dot.text.split(" ")[0]), float(self.input_2dot.text.split(" ")[1])]
@@ -139,8 +145,8 @@ class SimpleApp(kivy.app.App):
             perc = Perceptron(threshold=threshold, dot_list=dot_list, learning_rate=learning_rate, deadline=deadline, deadline_type=deadline_type)
             perc.train()
             self.label.text = repr(perc)
-        except Exception:
-            self.label.text = "Wrong arguments were given. Check all of them"
+#        except Exception:
+#            self.label.text = "Wrong arguments were given. Check all of them"
 
 
 if __name__ == "__main__":
