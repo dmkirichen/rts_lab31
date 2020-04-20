@@ -9,7 +9,7 @@ import math
 import pdb
 
 class GeneticAlgorithm:
-    def __init__(self, a: int, b: int, c: int, d: int, y: int, population_num=100):
+    def __init__(self, a: int, b: int, c: int, d: int, y: int, population_num=100, mutation_prob=0.1):
         self.a = a
         self.b = b
         self.c = c
@@ -18,6 +18,7 @@ class GeneticAlgorithm:
         self.population = []
         self.deltas = []
         self.m = population_num
+        self.mut_prob = mutation_prob
         self.iteration = 0
 
     def find_solution(self):
@@ -60,7 +61,11 @@ class GeneticAlgorithm:
                     else:
                         child_1var = parent1[:3] + parent2[3:]
                         child_2var = parent2[:3] + parent1[3:]
-                    
+
+                    # Mutation part
+                    child_1var = self.apply_mutation(child_1var)
+                    child_2var = self.apply_mutation(child_2var)
+
                     new_generation.append(choice([child_1var, child_2var]))
                     self.iteration += 1
                 self.population = new_generation
@@ -98,7 +103,17 @@ class GeneticAlgorithm:
             else:
                 score -= surv_probs[i]
         raise Exception("Parent was not found.")
+
+    def apply_mutation(self, x):
+        # Apply mutation with mut_prob probability
+        if (random() <= self.mut_prob):
+            mut_ind = choice([0, 1, 2, 3])  # random pos of mutation
+            new_num = randint(0, self.y // 2)  # new mutation value
+            x[mut_ind] = new_num  # replace old num with new value
+
+        return x
         
+
 
 class SimpleApp(kivy.app.App):
     def build(self): 
